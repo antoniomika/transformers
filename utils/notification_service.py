@@ -1288,7 +1288,6 @@ if __name__ == "__main__":
     is_scheduled_ci_run = os.environ.get("GITHUB_EVENT_NAME") == "schedule"
     # For AMD workflow runs: the different AMD CI callers (MI210/MI250/MI300, etc.) are triggered by `workflow_run`
     #  event of `.github/workflows/self-scheduled-amd-caller.yml`.
-    # TODO: Better to check the workflow file name to make sure it's indeed from AMD workflow files.
     if is_amd_daily_ci_workflow:
         # Get the path to the file on the runner that contains the full event webhook payload.
         event_payload_path = os.environ.get("GITHUB_EVENT_PATH")
