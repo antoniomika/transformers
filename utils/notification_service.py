@@ -1278,8 +1278,26 @@ if __name__ == "__main__":
         os.makedirs(os.path.join(os.getcwd(), f"ci_results_{job_name}"))
 
     nvidia_daily_ci_workflow = "huggingface/transformers/.github/workflows/self-scheduled-caller.yml"
+    amd_daily_ci_workflows = (
+        "huggingface/transformers/.github/workflows/self-scheduled-amd-mi210-caller.yml",
+        "huggingface/transformers/.github/workflows/self-scheduled-amd-mi250-caller.yml",
+    )
     is_nvidia_daily_ci_workflow = os.environ.get("GITHUB_WORKFLOW_REF").startswith(nvidia_daily_ci_workflow)
+    is_amd_daily_ci_workflow = os.environ.get("GITHUB_WORKFLOW_REF").startswith(amd_daily_ci_workflows)
+
     is_scheduled_ci_run = os.environ.get("GITHUB_EVENT_NAME") == "schedule"
+    # For AMD workflow runs: the different AMD CI callers (MI210/MI250/MI300, etc.) are triggered by `workflow_run`
+    #  event of `.github/workflows/self-scheduled-amd-caller.yml`.
+    # TODO: Better to check the workflow file name to make sure it's indeed from AMD workflow files.
+    if is_amd_daily_ci_workflow:
+        # Get the path to the file on the runner that contains the full event webhook payload.
+        event_payload_path = os.environ.get("GITHUB_EVENT_PATH")
+        # Load the event payload
+        with open(event_payload_path) as fp:
+            event_payload = json.load(fp)
+            # The event that triggers the `workflow_run` event.
+            if "workflow_run" in event_payload:
+                is_scheduled_ci_run = event_payload["event"] == "schedule"
 
     # The values are used as the file names where to save the corresponding CI job results.
     test_to_result_name = {
