@@ -28,7 +28,14 @@ def get_daily_ci_runs(token, num_runs=7, workflow_id=None):
 
     url = f"https://api.github.com/repos/huggingface/transformers/actions/workflows/{workflow_id}/runs"
     # On `main` branch + event being `schedule` + not returning PRs + only `num_runs` results
-    url += f"?branch=main&event=schedule&exclude_pull_requests=true&per_page={num_runs}"
+    url += f"?branch=main&exclude_pull_requests=true&per_page={num_runs}"
+
+    # This is specific to what we allow to trigger the scheduled runs
+    ci_event = os.environ.get("CI_EVENT", "")
+    if ci_event.startswith("Scheduled CI (AMD)"):
+        url += "&event=workflow_run"
+    else:
+        url += "&event=schedule"
 
     result = requests.get(url, headers=headers).json()
 
@@ -49,7 +56,9 @@ def get_last_daily_ci_run(token, workflow_run_id=None, workflow_id=None, commit_
         return workflow_run
 
     workflow_runs = get_daily_ci_runs(token, workflow_id=workflow_id)
+    print(workflow_runs)
     for run in workflow_runs:
+        print(run)
         if commit_sha in [None, ""] and run["status"] == "completed":
             workflow_run = run
             break
@@ -67,6 +76,7 @@ def get_last_daily_ci_workflow_run_id(token, workflow_run_id=None, workflow_id=N
         return workflow_run_id
 
     workflow_run = get_last_daily_ci_run(token, workflow_id=workflow_id, commit_sha=commit_sha)
+    print(workflow_run)
     workflow_run_id = None
     if workflow_run is not None:
         workflow_run_id = workflow_run["id"]
