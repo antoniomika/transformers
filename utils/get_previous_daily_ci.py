@@ -2,7 +2,7 @@ import os
 import zipfile
 
 import requests
-from get_ci_error_statistics import download_artifact, get_artifacts_links
+from utils.get_ci_error_statistics import download_artifact, get_artifacts_links
 
 
 def get_daily_ci_runs(token, num_runs=7, workflow_id=None):

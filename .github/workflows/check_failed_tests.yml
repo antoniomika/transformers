@@ -12,6 +12,9 @@ on:
       job:
         required: true
         type: string
+      ci_event:
+        required: true
+        type: string
       report_repo_id:
         required: true
         type: string
@@ -161,6 +164,16 @@ jobs:
             echo EOF
           } >> "$GITHUB_ENV"
 
+      - name: Prepare Slack report title
+        working-directory: /transformers
+        if: ${{ env.process == 'true' }}
+        run: echo "title=$(python3 -c 'from utils.notification_service import job_to_test_map; ci_event = "${{ inputs.ci_event }}"; job = "${{ inputs.job }}"; test_name = job_to_test_map[job]; title = f"New failed tests of {ci_event}" + ":" + f" {test_name}"; print(title)')" >> $GITHUB_ENV
+
+      - name: Check Slack report title
+        working-directory: /transformers
+        if: ${{ env.process == 'true' }}
+        run: echo ${{ env.title }}
+
       - name: Send processed report
         if: ${{ env.process == 'true' && !endsWith(env.REPORT_TEXT, '{}') }}
         uses: slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001
@@ -172,6 +185,13 @@ jobs:
           payload: |
             {
               "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "${{ env.title }}"
+                  }
+                },
                 {
                   "type": "section",
                   "text": {

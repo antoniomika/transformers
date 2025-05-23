@@ -24,14 +24,23 @@ import time
 from typing import Any, Dict, List, Optional, Union
 
 import requests
-from get_ci_error_statistics import get_jobs
-from get_previous_daily_ci import get_last_daily_ci_reports, get_last_daily_ci_run, get_last_daily_ci_workflow_run_id
+from utils.get_ci_error_statistics import get_jobs
+from utils.get_previous_daily_ci import get_last_daily_ci_reports, get_last_daily_ci_run, get_last_daily_ci_workflow_run_id
 from huggingface_hub import HfApi
 from slack_sdk import WebClient
 
 
-api = HfApi()
-client = WebClient(token=os.environ["CI_SLACK_BOT_TOKEN"])
+# A map associating the job names (specified by `inputs.job` in a workflow file) with the keys of
+# `additional_files`. This is used to remove some entries in `additional_files` that are not concerned by a
+# specific job. See below.
+job_to_test_map = {
+    "run_models_gpu": "Models",
+    "run_trainer_and_fsdp_gpu": "Trainer & FSDP",
+    "run_pipelines_torch_gpu": "PyTorch pipelines",
+    "run_pipelines_tf_gpu": "TensorFlow pipelines",
+    "run_examples_gpu": "Examples directory",
+    "run_torch_cuda_extensions_gpu": "DeepSpeed",
+}
 
 NON_MODEL_TEST_MODULES = [
     "deepspeed",
@@ -943,6 +952,9 @@ def pop_default(l: list[Any], i: int, default: Any) -> Any:
 
 
 if __name__ == "__main__":
+    api = HfApi()
+    client = WebClient(token=os.environ["CI_SLACK_BOT_TOKEN"])
+
     SLACK_REPORT_CHANNEL_ID = os.environ["SLACK_REPORT_CHANNEL"]
 
     # runner_status = os.environ.get("RUNNER_STATUS")
@@ -1173,18 +1185,6 @@ if __name__ == "__main__":
     elif ci_event.startswith("Push CI (AMD)"):
         additional_files = {}
 
-    # A map associating the job names (specified by `inputs.job` in a workflow file) with the keys of
-    # `additional_files`. This is used to remove some entries in `additional_files` that are not concerned by a
-    # specific job. See below.
-    job_to_test_map = {
-        "run_models_gpu": "Models",
-        "run_trainer_and_fsdp_gpu": "Trainer & FSDP",
-        "run_pipelines_torch_gpu": "PyTorch pipelines",
-        "run_pipelines_tf_gpu": "TensorFlow pipelines",
-        "run_examples_gpu": "Examples directory",
-        "run_torch_cuda_extensions_gpu": "DeepSpeed",
-    }
-
     report_repo_id = os.getenv("REPORT_REPO_ID")
 
     # if it is not a scheduled run, upload the reports to a subfolder under `report_repo_folder`
@@ -1401,18 +1401,16 @@ if __name__ == "__main__":
             else:
                 other_ci_artifacts.append((target_workflow_run_id, ci_artifacts))
 
-    job_to_test_map.update(
-        {
-            "run_models_gpu": "Models",
-            "run_trainer_and_fsdp_gpu": "Trainer & FSDP",
-        }
-    )
-
     ci_name_in_report = ""
     if job_name in job_to_test_map:
         ci_name_in_report = job_to_test_map[job_name]
 
     title = f"🤗 Results of {ci_event}: {ci_name_in_report}"
+
+    # Ad-hoc workaround
+    # TODO: better way to handle this
+    with open("slack_header.txt", "w") as fp:
+        fp.write(f"New failed tests of {ci_event}: {ci_name_in_report}")
 
     message = Message(
         title,
