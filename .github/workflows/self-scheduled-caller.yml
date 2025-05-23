@@ -53,7 +53,7 @@ jobs:
       slack_report_channel: "#transformers-ci-daily-models"
       runner: daily-ci
       docker: huggingface/transformers-all-latest-gpu
-      ci_event: Daily CI
+      ci_event: Scheduled CI (AMD) - mi210
       report_repo_id: optimum-amd/transformers_daily_ci_temp
     secrets: inherit
 
@@ -65,7 +65,7 @@ jobs:
 #      slack_report_channel: "#transformers-ci-daily-pipeline-torch"
 #      runner: daily-ci
 #      docker: huggingface/transformers-pytorch-gpu
-#      ci_event: Daily CI
+#      ci_event: Scheduled CI (AMD) - mi210
 #      report_repo_id: optimum-amd/transformers_daily_ci_temp
 #    secrets: inherit
 
@@ -77,7 +77,7 @@ jobs:
 #      slack_report_channel: "#transformers-ci-daily-pipeline-tf"
 #      runner: daily-ci
 #      docker: huggingface/transformers-tensorflow-gpu
-#      ci_event: Daily CI
+#      ci_event: Scheduled CI (AMD) - mi210
 #      report_repo_id: optimum-amd/transformers_daily_ci_temp
 #    secrets: inherit
 #
@@ -89,7 +89,7 @@ jobs:
 #      slack_report_channel: "#transformers-ci-daily-examples"
 #      runner: daily-ci
 #      docker: huggingface/transformers-all-latest-gpu
-#      ci_event: Daily CI
+#      ci_event: Scheduled CI (AMD) - mi210
 #      report_repo_id: optimum-amd/transformers_daily_ci_temp
 #    secrets: inherit
 
@@ -101,7 +101,7 @@ jobs:
 #      slack_report_channel: "#transformers-ci-daily-training"
 #      runner: daily-ci
 #      docker: huggingface/transformers-all-latest-gpu
-#      ci_event: Daily CI
+#      ci_event: Scheduled CI (AMD) - mi210
 #      report_repo_id: optimum-amd/transformers_daily_ci_temp
 #    secrets: inherit
 
@@ -113,7 +113,7 @@ jobs:
 #      slack_report_channel: "#transformers-ci-daily-training"
 #      runner: daily-ci
 #      docker: huggingface/transformers-pytorch-deepspeed-latest-gpu
-#      ci_event: Daily CI
+#      ci_event: Scheduled CI (AMD) - mi210
 #      working-directory-prefix: /workspace
 #      report_repo_id: optimum-amd/transformers_daily_ci_temp
 #    secrets: inherit
@@ -126,6 +126,6 @@ jobs:
 #      slack_report_channel: "#transformers-ci-daily-quantization"
 #      runner: daily-ci
 #      docker: huggingface/transformers-quantization-latest-gpu
-#      ci_event: Daily CI
+#      ci_event: Scheduled CI (AMD) - mi210
 #      report_repo_id: optimum-amd/transformers_daily_ci_temp
 #    secrets: inherit
